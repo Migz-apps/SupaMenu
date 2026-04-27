@@ -8,7 +8,7 @@ import {
   Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Bell, Moon, Globe, Shield, HelpCircle, ChevronRight } from 'lucide-react-native';
+import { ArrowLeft, Bell, Moon, Globe, Shield, HelpCircle, ChevronRight, Info, MapPin } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 
 export default function SettingsScreen() {

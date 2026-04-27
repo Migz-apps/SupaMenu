@@ -1,6 +1,5 @@
 import React from 'react';
 import { TextInput, View, Text, Animated } from 'react-native';
-import { twMerge } from 'tailwindcss-react-native';
 
 export default function Input({
   label,
@@ -22,11 +21,7 @@ export default function Input({
           {label}
         </Text>
       )}
-      <View className={twMerge(
-        'bg-gray-50 rounded-2xl px-4 py-4 flex-row items-center border border-gray-200',
-        error && 'border-red-500',
-        className
-      )}>
+      <View className={`bg-gray-50 rounded-2xl px-4 py-4 flex-row items-center border border-gray-200 ${error ? 'border-red-500' : ''} ${className}`}>
         {icon && (
           <View className="mr-3">
             {icon}

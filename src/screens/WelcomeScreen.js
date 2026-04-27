@@ -8,10 +8,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, Phone, Mail } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
+import { colors, spacing, borderRadius, fontSize, shadow } from '../utils/styles';
 
 export default function WelcomeScreen() {
   const [formData, setFormData] = useState({
@@ -44,7 +46,8 @@ export default function WelcomeScreen() {
   };
 
   const handleProceed = () => {
-    navigation.navigate('Login');
+    console.log('Navigating to Search from Welcome');
+    navigation.navigate('Search');
   };
 
   const handleSignIn = () => {
@@ -52,24 +55,24 @@ export default function WelcomeScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
+        style={styles.flex}
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
-          className="flex-1"
+          style={styles.flex}
           contentContainerStyle={{ flexGrow: 1 }}
         >
           {/* Header */}
-          <View className="bg-primary px-6 pt-4 pb-8 rounded-b-3xl">
-            <View className="flex-row justify-between items-center mb-8">
-              <Text className="text-white text-sm font-medium">9:41</Text>
-              <View className="flex-row space-x-1">
-                <View className="w-4 h-3 bg-white rounded-sm"></View>
-                <View className="w-4 h-3 bg-white rounded-sm"></View>
-                <View className="w-6 h-3 bg-white rounded-sm"></View>
+          <View style={styles.header}>
+            <View style={styles.statusBar}>
+              <Text style={styles.statusText}>9:41</Text>
+              <View style={styles.statusIcons}>
+                <View style={[styles.statusIcon, { backgroundColor: '#fff' }]}></View>
+                <View style={[styles.statusIcon, { backgroundColor: '#fff' }]}></View>
+                <View style={[styles.statusIcon, { width: spacing[6], height: spacing[3], backgroundColor: '#fff' }]}></View>
               </View>
             </View>
             
@@ -78,10 +81,9 @@ export default function WelcomeScreen() {
                 opacity: fadeAnim,
                 transform: [{ translateY: slideAnim }],
               }}
-              className="items-center"
             >
-              <Text className="text-white text-4xl font-bold mb-2">SupaMenu</Text>
-              <Text className="text-white text-xl">Welcome...</Text>
+              <Text style={styles.logoText}>SupaMenu</Text>
+              <Text style={styles.welcomeText}>Welcome...</Text>
             </Animated.View>
           </View>
 
@@ -90,44 +92,44 @@ export default function WelcomeScreen() {
             style={{
               opacity: fadeAnim,
               transform: [{ translateY: slideAnim }],
+              ...styles.formContent,
             }}
-            className="px-6 pt-8 pb-6"
           >
-            <Text className="text-gray-600 text-center mb-8">
+            <Text style={styles.instructionText}>
               Please fill in the information
             </Text>
 
             {/* Input Fields */}
-            <View className="space-y-4 mb-8">
-              <View className="bg-gray-50 rounded-2xl px-4 py-4 flex-row items-center border border-gray-200">
-                <User size={20} color="#6B7280" />
+            <View style={styles.inputContainer}>
+              <View style={styles.inputWrapper}>
+                <User size={20} color={colors.gray[500]} />
                 <TextInput
-                  className="flex-1 ml-3 text-gray-800 text-base"
+                  style={styles.textInput}
                   placeholder="Full Name"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={colors.gray[400]}
                   value={formData.fullName}
                   onChangeText={(value) => handleInputChange('fullName', value)}
                 />
               </View>
 
-              <View className="bg-gray-50 rounded-2xl px-4 py-4 flex-row items-center border border-gray-200">
-                <Phone size={20} color="#6B7280" />
+              <View style={styles.inputWrapper}>
+                <Phone size={20} color={colors.gray[500]} />
                 <TextInput
-                  className="flex-1 ml-3 text-gray-800 text-base"
+                  style={styles.textInput}
                   placeholder="Phone Number"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={colors.gray[400]}
                   value={formData.phoneNumber}
                   onChangeText={(value) => handleInputChange('phoneNumber', value)}
                   keyboardType="phone-pad"
                 />
               </View>
 
-              <View className="bg-gray-50 rounded-2xl px-4 py-4 flex-row items-center border border-gray-200">
-                <Mail size={20} color="#6B7280" />
+              <View style={styles.inputWrapper}>
+                <Mail size={20} color={colors.gray[500]} />
                 <TextInput
-                  className="flex-1 ml-3 text-gray-800 text-base"
+                  style={styles.textInput}
                   placeholder="Your Email"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={colors.gray[400]}
                   value={formData.email}
                   onChangeText={(value) => handleInputChange('email', value)}
                   keyboardType="email-address"
@@ -137,41 +139,41 @@ export default function WelcomeScreen() {
             </View>
 
             {/* Buttons */}
-            <View className="space-y-4">
+            <View style={styles.buttonContainer}>
               <TouchableOpacity
                 onPress={handleProceed}
-                className="bg-primary rounded-2xl py-4 items-center shadow-lg"
+                style={styles.proceedButton}
                 activeOpacity={0.8}
               >
-                <Text className="text-white text-lg font-semibold">Proceed</Text>
+                <Text style={styles.buttonText}>Proceed</Text>
               </TouchableOpacity>
 
-              <View className="flex-row items-center justify-center">
-                <View className="flex-1 h-px bg-gray-300"></View>
-                <Text className="px-4 text-gray-500 text-sm">OR</Text>
-                <View className="flex-1 h-px bg-gray-300"></View>
+              <View style={styles.orSeparator}>
+                <View style={styles.orLine}></View>
+                <Text style={styles.orText}>OR</Text>
+                <View style={styles.orLine}></View>
               </View>
 
-              <Text className="text-center text-gray-600 text-sm mb-4">
+              <Text style={styles.accountText}>
                 If you have a PMG account
               </Text>
 
               <TouchableOpacity
                 onPress={handleSignIn}
-                className="bg-secondary rounded-2xl py-4 items-center shadow-lg"
+                style={styles.signInButton}
                 activeOpacity={0.8}
               >
-                <Text className="text-white text-lg font-semibold">Sign In</Text>
+                <Text style={styles.buttonText}>Sign In</Text>
               </TouchableOpacity>
             </View>
 
             {/* Register Link */}
-            <View className="flex-row justify-center mt-8">
-              <Text className="text-gray-600 text-sm">
+            <View style={styles.registerLink}>
+              <Text style={styles.registerText}>
                 Don't have a account?{' '}
               </Text>
               <TouchableOpacity onPress={handleProceed}>
-                <Text className="text-primary text-sm font-semibold">Register</Text>
+                <Text style={styles.registerLinkText}>Register</Text>
               </TouchableOpacity>
             </View>
           </Animated.View>
@@ -180,3 +182,141 @@ export default function WelcomeScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.light,
+  },
+  flex: {
+    flex: 1,
+  },
+  header: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: spacing[6],
+    paddingTop: spacing[4],
+    paddingBottom: spacing[8],
+    borderBottomLeftRadius: borderRadius[48],
+    borderBottomRightRadius: borderRadius[48],
+  },
+  statusBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing[8],
+  },
+  statusText: {
+    color: '#fff',
+    fontSize: fontSize.sm,
+    fontWeight: '500',
+  },
+  statusIcons: {
+    flexDirection: 'row',
+    gap: spacing[1],
+  },
+  statusIcon: {
+    width: spacing[4],
+    height: spacing[3],
+    borderRadius: borderRadius.sm,
+  },
+  logoText: {
+    color: '#fff',
+    fontSize: fontSize[4],
+    fontWeight: 'bold',
+    marginBottom: spacing[2],
+    textAlign: 'center',
+  },
+  welcomeText: {
+    color: '#fff',
+    fontSize: fontSize['2xl'],
+    textAlign: 'center',
+  },
+  formContent: {
+    paddingHorizontal: spacing[6],
+    paddingTop: spacing[12],
+    paddingBottom: spacing[8],
+  },
+  instructionText: {
+    color: colors.gray[600],
+    textAlign: 'center',
+    marginBottom: spacing[12],
+  },
+  inputContainer: {
+    gap: spacing[8],
+    marginBottom: spacing[12],
+  },
+  inputWrapper: {
+    backgroundColor: colors.gray[50],
+    borderRadius: borderRadius[32],
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[4],
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.gray[200],
+  },
+  textInput: {
+    flex: 1,
+    marginLeft: spacing[3],
+    color: colors.gray[800],
+    fontSize: fontSize.base,
+  },
+  buttonContainer: {
+    gap: spacing[8],
+    marginBottom: spacing[12],
+  },
+  proceedButton: {
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius[32],
+    paddingVertical: spacing[4],
+    alignItems: 'center',
+    ...shadow.lg,
+  },
+  signInButton: {
+    backgroundColor: colors.secondary,
+    borderRadius: borderRadius[32],
+    paddingVertical: spacing[4],
+    alignItems: 'center',
+    ...shadow.lg,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: fontSize.lg,
+    fontWeight: '600',
+  },
+  orSeparator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  orLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.gray[300],
+  },
+  orText: {
+    paddingHorizontal: spacing[4],
+    color: colors.gray[500],
+    fontSize: fontSize.sm,
+  },
+  accountText: {
+    color: colors.gray[600],
+    fontSize: fontSize.sm,
+    textAlign: 'center',
+    marginBottom: spacing[4],
+  },
+  registerLink: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: spacing[12],
+  },
+  registerText: {
+    color: colors.gray[600],
+    fontSize: fontSize.sm,
+  },
+  registerLinkText: {
+    color: colors.primary,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+  },
+});

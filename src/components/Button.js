@@ -1,6 +1,5 @@
 import React from 'react';
 import { TouchableOpacity, Text, ActivityIndicator, Animated } from 'react-native';
-import { twMerge } from 'tailwindcss-react-native';
 
 export default function Button({
   title,
@@ -54,13 +53,7 @@ export default function Button({
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled || loading}
-      className={twMerge(
-        'rounded-2xl items-center justify-center transition-all duration-200',
-        getVariantStyles(),
-        getSizeStyles(),
-        (disabled || loading) && 'opacity-50',
-        className
-      )}
+      className={`rounded-2xl items-center justify-center transition-all duration-200 ${getVariantStyles()} ${getSizeStyles()} ${(disabled || loading) ? 'opacity-50' : ''} ${className}`}
       activeOpacity={0.8}
       {...props}
     >
@@ -70,10 +63,7 @@ export default function Button({
           color={variant === 'outline' || variant === 'ghost' ? '#FF6B35' : '#FFFFFF'} 
         />
       ) : (
-        <Text className={twMerge(
-          'text-lg font-semibold',
-          getTextStyles()
-        )}>
+        <Text className={`text-lg font-semibold ${getTextStyles()}`}>
           {title}
         </Text>
       )}

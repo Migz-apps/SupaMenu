@@ -8,11 +8,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
-  Image,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Mail, Lock } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
+import { colors, spacing, borderRadius, fontSize, shadow } from '../utils/styles';
 
 export default function LoginScreen() {
   const [formData, setFormData] = useState({
@@ -44,21 +45,21 @@ export default function LoginScreen() {
   };
 
   const handleSignIn = () => {
+    console.log('Navigating to Search');
     navigation.navigate('Search');
   };
 
   const handleGoogleLogin = () => {
-    // Handle Google login
     console.log('Google login');
+    navigation.navigate('Search');
   };
 
   const handleFacebookLogin = () => {
-    // Handle Facebook login
     console.log('Facebook login');
+    navigation.navigate('Search');
   };
 
   const handleForgotPassword = () => {
-    // Handle forgot password
     console.log('Forgot password');
   };
 
@@ -67,24 +68,24 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
+        style={styles.flex}
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
-          className="flex-1"
+          style={styles.flex}
           contentContainerStyle={{ flexGrow: 1 }}
         >
           {/* Header */}
-          <View className="bg-primary px-6 pt-4 pb-8 rounded-b-3xl">
-            <View className="flex-row justify-between items-center mb-8">
-              <Text className="text-white text-sm font-medium">9:41</Text>
-              <View className="flex-row space-x-1">
-                <View className="w-4 h-3 bg-white rounded-sm"></View>
-                <View className="w-4 h-3 bg-white rounded-sm"></View>
-                <View className="w-6 h-3 bg-white rounded-sm"></View>
+          <View style={styles.header}>
+            <View style={styles.statusBar}>
+              <Text style={styles.statusText}>9:41</Text>
+              <View style={styles.statusIcons}>
+                <View style={[styles.statusIcon, { backgroundColor: '#fff' }]}></View>
+                <View style={[styles.statusIcon, { backgroundColor: '#fff' }]}></View>
+                <View style={[styles.statusIcon, { width: spacing[6], height: spacing[3], backgroundColor: '#fff' }]}></View>
               </View>
             </View>
             
@@ -93,11 +94,10 @@ export default function LoginScreen() {
                 opacity: fadeAnim,
                 transform: [{ translateY: slideAnim }],
               }}
-              className="items-center"
             >
-              <Text className="text-white text-4xl font-bold mb-2">SupaMenu</Text>
-              <Text className="text-white text-xl">Welcome...</Text>
-              <Text className="text-white/90 text-sm mt-2">Sign in to continue</Text>
+              <Text style={styles.logoText}>SupaMenu</Text>
+              <Text style={styles.welcomeText}>Welcome...</Text>
+              <Text style={styles.subtitleText}>Sign in to continue</Text>
             </Animated.View>
           </View>
 
@@ -106,17 +106,17 @@ export default function LoginScreen() {
             style={{
               opacity: fadeAnim,
               transform: [{ translateY: slideAnim }],
+              ...styles.formContent,
             }}
-            className="px-6 pt-8 pb-6"
           >
             {/* Input Fields */}
-            <View className="space-y-4 mb-8">
-              <View className="bg-gray-50 rounded-2xl px-4 py-4 flex-row items-center border border-gray-200">
-                <Mail size={20} color="#6B7280" />
+            <View style={styles.inputContainer}>
+              <View style={styles.inputWrapper}>
+                <Mail size={20} color={colors.gray[500]} />
                 <TextInput
-                  className="flex-1 ml-3 text-gray-800 text-base"
+                  style={styles.textInput}
                   placeholder="Your Email"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={colors.gray[400]}
                   value={formData.email}
                   onChangeText={(value) => handleInputChange('email', value)}
                   keyboardType="email-address"
@@ -124,12 +124,12 @@ export default function LoginScreen() {
                 />
               </View>
 
-              <View className="bg-gray-50 rounded-2xl px-4 py-4 flex-row items-center border border-gray-200">
-                <Lock size={20} color="#6B7280" />
+              <View style={styles.inputWrapper}>
+                <Lock size={20} color={colors.gray[500]} />
                 <TextInput
-                  className="flex-1 ml-3 text-gray-800 text-base"
+                  style={styles.textInput}
                   placeholder="Password"
-                  placeholderTextColor="#9CA3AF"
+                  placeholderTextColor={colors.gray[400]}
                   value={formData.password}
                   onChangeText={(value) => handleInputChange('password', value)}
                   secureTextEntry
@@ -140,60 +140,58 @@ export default function LoginScreen() {
             {/* Sign In Button */}
             <TouchableOpacity
               onPress={handleSignIn}
-              className="bg-primary rounded-2xl py-4 items-center shadow-lg mb-6"
+              style={styles.signInButton}
               activeOpacity={0.8}
             >
-              <Text className="text-white text-lg font-semibold">Sign In</Text>
+              <Text style={styles.buttonText}>Sign In</Text>
             </TouchableOpacity>
 
             {/* OR Separator */}
-            <View className="flex-row items-center justify-center mb-6">
-              <View className="flex-1 h-px bg-gray-300"></View>
-              <Text className="px-4 text-gray-500 text-sm">OR</Text>
-              <View className="flex-1 h-px bg-gray-300"></View>
+            <View style={styles.orSeparator}>
+              <View style={styles.orLine}></View>
+              <Text style={styles.orText}>OR</Text>
+              <View style={styles.orLine}></View>
             </View>
 
             {/* Social Login Buttons */}
-            <View className="space-y-3 mb-8">
+            <View style={styles.socialContainer}>
               <TouchableOpacity
                 onPress={handleGoogleLogin}
-                className="bg-white border border-gray-300 rounded-2xl py-4 flex-row items-center justify-center shadow-sm"
+                style={styles.googleButton}
                 activeOpacity={0.8}
               >
-                <Image
-                  source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg' }}
-                  className="w-5 h-5 mr-3"
-                />
-                <Text className="text-gray-700 text-base font-medium">Login with Google</Text>
+                <View style={styles.iconPlaceholder}>
+                  <Text style={styles.iconText}>G</Text>
+                </View>
+                <Text style={styles.googleButtonText}>Login with Google</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 onPress={handleFacebookLogin}
-                className="bg-blue-600 rounded-2xl py-4 flex-row items-center justify-center shadow-sm"
+                style={styles.facebookButton}
                 activeOpacity={0.8}
               >
-                <Image
-                  source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg' }}
-                  className="w-5 h-5 mr-3"
-                />
-                <Text className="text-white text-base font-medium">Login with facebook</Text>
+                <View style={styles.iconPlaceholder}>
+                  <Text style={styles.iconText}>f</Text>
+                </View>
+                <Text style={styles.facebookButtonText}>Login with facebook</Text>
               </TouchableOpacity>
             </View>
 
             {/* Bottom Links */}
-            <View className="space-y-4">
-              <View className="flex-row justify-center">
+            <View style={styles.linksContainer}>
+              <View style={styles.forgotPasswordContainer}>
                 <TouchableOpacity onPress={handleForgotPassword}>
-                  <Text className="text-primary text-sm font-medium">Forgot Password?</Text>
+                  <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
                 </TouchableOpacity>
               </View>
 
-              <View className="flex-row justify-center">
-                <Text className="text-gray-600 text-sm">
+              <View style={styles.registerContainer}>
+                <Text style={styles.registerText}>
                   Don't have a account?{' '}
                 </Text>
                 <TouchableOpacity onPress={handleRegister}>
-                  <Text className="text-primary text-sm font-semibold">Register</Text>
+                  <Text style={styles.registerLinkText}>Register</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -203,3 +201,184 @@ export default function LoginScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.light,
+  },
+  flex: {
+    flex: 1,
+  },
+  header: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: spacing[6],
+    paddingTop: spacing[4],
+    paddingBottom: spacing[8],
+    borderBottomLeftRadius: borderRadius[48],
+    borderBottomRightRadius: borderRadius[48],
+  },
+  statusBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing[8],
+  },
+  statusText: {
+    color: '#fff',
+    fontSize: fontSize.sm,
+    fontWeight: '500',
+  },
+  statusIcons: {
+    flexDirection: 'row',
+    gap: spacing[1],
+  },
+  statusIcon: {
+    width: spacing[4],
+    height: spacing[3],
+    borderRadius: borderRadius.sm,
+  },
+  logoText: {
+    color: '#fff',
+    fontSize: fontSize[4],
+    fontWeight: 'bold',
+    marginBottom: spacing[2],
+    textAlign: 'center',
+  },
+  welcomeText: {
+    color: '#fff',
+    fontSize: fontSize['2xl'],
+    textAlign: 'center',
+  },
+  subtitleText: {
+    color: '#fff',
+    fontSize: fontSize.sm,
+    textAlign: 'center',
+    marginTop: spacing[2],
+  },
+  formContent: {
+    paddingHorizontal: spacing[6],
+    paddingTop: spacing[12],
+    paddingBottom: spacing[8],
+  },
+  inputContainer: {
+    gap: spacing[8],
+    marginBottom: spacing[12],
+  },
+  inputWrapper: {
+    backgroundColor: colors.gray[50],
+    borderRadius: borderRadius[32],
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[4],
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.gray[200],
+  },
+  textInput: {
+    flex: 1,
+    marginLeft: spacing[3],
+    color: colors.gray[800],
+    fontSize: fontSize.base,
+  },
+  signInButton: {
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius[32],
+    paddingVertical: spacing[4],
+    alignItems: 'center',
+    marginBottom: spacing[12],
+    ...shadow.lg,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: fontSize.lg,
+    fontWeight: '600',
+  },
+  orSeparator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  orLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.gray[300],
+  },
+  orText: {
+    paddingHorizontal: spacing[4],
+    color: colors.gray[500],
+    fontSize: fontSize.sm,
+  },
+  socialContainer: {
+    gap: spacing[8],
+    marginBottom: spacing[12],
+  },
+  googleButton: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: colors.gray[300],
+    borderRadius: borderRadius[32],
+    paddingVertical: spacing[4],
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadow.sm,
+  },
+  iconPlaceholder: {
+    width: spacing[5],
+    height: spacing[5],
+    borderRadius: borderRadius[8],
+    backgroundColor: colors.gray[100],
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing[3],
+  },
+  iconText: {
+    fontSize: fontSize.lg,
+    fontWeight: 'bold',
+    color: colors.gray[700],
+  },
+  googleButtonText: {
+    color: colors.gray[700],
+    fontSize: fontSize.base,
+    fontWeight: '500',
+  },
+  facebookButton: {
+    backgroundColor: '#1877F2',
+    borderRadius: borderRadius[32],
+    paddingVertical: spacing[4],
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadow.sm,
+  },
+  facebookButtonText: {
+    color: '#fff',
+    fontSize: fontSize.base,
+    fontWeight: '500',
+  },
+  linksContainer: {
+    gap: spacing[8],
+  },
+  forgotPasswordContainer: {
+    alignItems: 'center',
+  },
+  forgotPasswordText: {
+    color: colors.primary,
+    fontSize: fontSize.sm,
+    fontWeight: '500',
+  },
+  registerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  registerText: {
+    color: colors.gray[600],
+    fontSize: fontSize.sm,
+  },
+  registerLinkText: {
+    color: colors.primary,
+    fontSize: fontSize.sm,
+    fontWeight: '600',
+  },
+});

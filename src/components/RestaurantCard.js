@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, Animated } from 'react-native';
-import { twMerge } from 'tailwindcss-react-native';
 import { Star, Clock, MapPin } from 'lucide-react-native';
 
 export default function RestaurantCard({
@@ -36,10 +35,7 @@ export default function RestaurantCard({
     >
       <TouchableOpacity
         onPress={() => onPress && onPress(restaurant)}
-        className={twMerge(
-          'bg-white rounded-2xl p-4 mb-3 shadow-sm border border-gray-100',
-          className
-        )}
+        className={`bg-white rounded-2xl p-4 mb-3 shadow-sm border border-gray-100 ${className}`}
         activeOpacity={0.7}
         {...props}
       >
