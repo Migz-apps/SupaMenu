@@ -8,15 +8,16 @@ import {
   Animated,
   StyleSheet,
   Dimensions,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Search, QrCode, ArrowLeft, Home } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
-import { colors, spacing, borderRadius, fontSize, shadow } from '../utils/styles';
 
 const { width, height } = Dimensions.get('window');
 
-// Sample restaurant data
+// Sample restaurant data [cite: 17-26]
 const restaurants = [
   { id: 1, name: 'Burger Palace', cuisine: 'American', rating: 4.5 },
   { id: 2, name: 'Pizza Heaven', cuisine: 'Italian', rating: 4.8 },
@@ -28,78 +29,60 @@ const restaurants = [
   { id: 8, name: 'Noodle Express', cuisine: 'Chinese', rating: 4.5 },
 ];
 
+const colors = {
+  primary: '#FF6B35',
+  light: '#F8F9FA',
+  gray: {
+    100: '#F3F4F6',
+    200: '#E5E7EB',
+    400: '#9CA3AF',
+    500: '#6B7280',
+    800: '#1F2937',
+  },
+};
+
 export default function SearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const [showResults, setShowResults] = useState(false);
   const navigation = useNavigation();
-  
-  const fadeAnim = new Animated.Value(0);
-  const slideAnim = new Animated.Value(50);
-  const scaleAnim = new Animated.Value(0.8);
+
+  // Animation Values [cite: 99-101]
+  const fadeAnim = useState(new Animated.Value(0))[0];
+  const slideAnim = useState(new Animated.Value(20))[0];
+  const scaleAnim = useState(new Animated.Value(0.9))[0];
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.spring(scaleAnim, {
-        toValue: 1,
-        friction: 8,
-        tension: 40,
-        useNativeDriver: true,
-      }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
+      Animated.spring(scaleAnim, { toValue: 1, friction: 8, useNativeDriver: true }),
     ]).start();
   }, []);
 
+  // Search Logic 
   useEffect(() => {
-    if (searchQuery.trim()) {
-      const filtered = restaurants.filter(restaurant => 
+    if (searchQuery.trim().length > 0) {
+      const filtered = restaurants.filter(restaurant =>
         restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredRestaurants(filtered);
       setShowResults(true);
     } else {
-      setFilteredRestaurants([]);
       setShowResults(false);
     }
   }, [searchQuery]);
 
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      navigation.navigate('Home');
-    }
-  };
-
-  const handleRestaurantSelect = (restaurant) => {
-    navigation.navigate('RestaurantDetail', { restaurant });
-  };
-
-  const handleQRScan = () => {
-    console.log('QR Scan');
-    navigation.navigate('Home');
-  };
-
-  const handleBack = () => {
-    navigation.goBack();
-  };
-
-  const renderRestaurant = (item, index) => (
+  const renderRestaurant = (item) => (
     <TouchableOpacity
       key={item.id}
-      onPress={() => handleRestaurantSelect(item)}
+      onPress={() => navigation.navigate('RestaurantDetail', { restaurant: item })}
       style={styles.restaurantItem}
       activeOpacity={0.7}
     >
       <View style={styles.restaurantIcon}>
+        {/* Placeholder House Icon used instead of images  */}
         <Home size={24} color={colors.primary} />
       </View>
       <View style={styles.restaurantInfo}>
@@ -114,119 +97,59 @@ export default function SearchScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        style={styles.flex}
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+        style={{ flex: 1 }}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.statusBar}>
-            <Text style={styles.statusText}>9:41</Text>
-            <View style={styles.statusIcons}>
-              <View style={[styles.statusIcon, { backgroundColor: '#fff' }]}></View>
-              <View style={[styles.statusIcon, { backgroundColor: '#fff' }]}></View>
-              <View style={[styles.statusIcon, { width: spacing[6], height: spacing[3], backgroundColor: '#fff' }]}></View>
-            </View>
+        <View style={styles.mainContent}>
+          {/* Header & Search Bar Area */}
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <ArrowLeft size={28} color="white" />
+            </TouchableOpacity>
+
+            <Animated.View style={[styles.searchBarContainer, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+              <Search size={20} color={colors.gray[500]} />
+              <TextInput
+                style={styles.textInput}
+                placeholder="Search for your preferred restaurant"
+                placeholderTextColor={colors.gray[400]}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                autoCorrect={false}
+              />
+            </Animated.View>
           </View>
 
-          {/* Back Button */}
-          <TouchableOpacity
-            onPress={handleBack}
-            style={styles.backButton}
-            activeOpacity={0.8}
-          >
-            <ArrowLeft size={24} color="white" />
-          </TouchableOpacity>
-
-          {/* Search Bar */}
-          <Animated.View
-            style={{
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-              ...styles.searchBarContainer,
-            }}
-          >
-            <Search size={20} color={colors.gray[500]} />
-            <TextInput
-              style={styles.textInput}
-              placeholder="Search for your preferred restaurant"
-              placeholderTextColor={colors.gray[400]}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              onSubmitEditing={handleSearch}
-              returnKeyType="search"
-              autoCorrect={false}
-              autoCapitalize="none"
-              clearButtonMode="while-editing"
-            />
-          </Animated.View>
-
-          {/* Search Results */}
-          {showResults && (
-            <Animated.View
-              style={{
-                opacity: fadeAnim,
-                transform: [{ translateY: slideAnim }],
-                ...styles.resultsContainer,
-              }}
-            >
-              <View style={styles.resultsList}>
-                {filteredRestaurants.map((item, index) => renderRestaurant(item, index))}
+          {/* Body Content */}
+          <View style={styles.body}>
+            {showResults ? (
+              <Animated.View style={[styles.resultsContainer, { opacity: fadeAnim }]}>
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.resultsList}>
+                  {filteredRestaurants.length > 0 ? (
+                    filteredRestaurants.map(renderRestaurant)
+                  ) : (
+                    <Text style={styles.noResultText}>No restaurants found</Text>
+                  )}
+                </ScrollView>
+              </Animated.View>
+            ) : (
+              <View style={styles.centerContent}>
+                <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: scaleAnim }] }}>
+                  <Text style={styles.orText}>or</Text>
+                  <TouchableOpacity 
+                    onPress={() => console.log('QR Scan')} 
+                    style={styles.qrButton}
+                  >
+                    <QrCode size={80} color={colors.primary} />
+                  </TouchableOpacity>
+                  <Text style={styles.bottomText}>Scan, Pay & Enjoy!</Text>
+                </Animated.View>
               </View>
-            </Animated.View>
-          )}
-
-          {!showResults && (
-            <>
-              {/* OR Text */}
-              <Animated.View
-                style={{
-                  opacity: fadeAnim,
-                  transform: [{ translateY: slideAnim }],
-                  ...styles.orContainer,
-                }}
-              >
-                <Text style={styles.orText}>or</Text>
-              </Animated.View>
-
-              {/* QR Code Button */}
-              <Animated.View
-                style={{
-                  opacity: fadeAnim,
-                  transform: [
-                    { translateY: slideAnim },
-                    { scale: scaleAnim },
-                  ],
-                  ...styles.qrContainer,
-                }}
-              >
-                <TouchableOpacity
-                  onPress={handleQRScan}
-                  style={styles.qrButton}
-                  activeOpacity={0.8}
-                >
-                  <QrCode size={80} color={colors.primary} />
-                </TouchableOpacity>
-              </Animated.View>
-
-              {/* Bottom Text */}
-              <Animated.View
-                style={{
-                  opacity: fadeAnim,
-                  transform: [{ translateY: slideAnim }],
-                  ...styles.bottomTextContainer,
-                }}
-              >
-                <Text style={styles.bottomText}>
-                  Scan, Pay & Enjoy!
-                </Text>
-              </Animated.View>
-            </>
-          )}
+            )}
+          </View>
         </View>
-      </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -234,141 +157,128 @@ export default function SearchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.primary,
+    backgroundColor: '#FF6B35', // Match primary for seamless top
   },
-  flex: {
+  mainContent: {
     flex: 1,
+    backgroundColor: '#FF6B35',
   },
   header: {
-    paddingHorizontal: spacing[6],
-    paddingTop: spacing[4],
-    paddingBottom: spacing[8],
-    flex: 1,
-  },
-  statusBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing[8],
-  },
-  statusText: {
-    color: '#fff',
-    fontSize: fontSize.sm,
-    fontWeight: '500',
-  },
-  statusIcons: {
-    flexDirection: 'row',
-    gap: spacing[1],
-  },
-  statusIcon: {
-    width: spacing[4],
-    height: spacing[3],
-    borderRadius: borderRadius.sm,
+    paddingHorizontal: 24,
+    paddingTop: 10,
+    paddingBottom: 20,
   },
   backButton: {
-    marginBottom: spacing[6],
+    marginBottom: 20,
+    width: 40,
   },
   searchBarContainer: {
     backgroundColor: '#fff',
-    borderRadius: borderRadius[32],
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[4],
+    borderRadius: 30,
+    paddingHorizontal: 15,
+    height: 55,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: spacing[8],
-    ...shadow.lg,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
   },
   textInput: {
     flex: 1,
-    marginLeft: spacing[3],
-    color: colors.gray[800],
-    fontSize: fontSize.base,
+    marginLeft: 10,
+    color: '#1F2937',
+    fontSize: 16,
+  },
+  body: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    paddingTop: 30,
   },
   resultsContainer: {
-    backgroundColor: '#fff',
-    borderRadius: borderRadius[24],
-    marginBottom: spacing[4],
-    maxHeight: height * 0.4,
-    ...shadow.md,
+    flex: 1,
+    paddingHorizontal: 20,
   },
   resultsList: {
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[2],
+    paddingBottom: 20,
   },
   restaurantItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing[4],
-    paddingVertical: spacing[4],
-    borderBottomWidth: 1,
-    borderBottomColor: colors.gray[200],
-    borderRadius: borderRadius[16],
-    marginBottom: spacing[2],
+    padding: 15,
     backgroundColor: '#fff',
+    borderRadius: 15,
+    marginBottom: 12,
+    elevation: 2,
   },
   restaurantIcon: {
-    width: spacing[12],
-    height: spacing[12],
-    borderRadius: borderRadius[12],
-    backgroundColor: colors.gray[100],
+    width: 50,
+    height: 50,
+    borderRadius: 10,
+    backgroundColor: '#F3F4F6',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: spacing[3],
+    marginRight: 15,
   },
   restaurantInfo: {
     flex: 1,
   },
   restaurantName: {
-    fontSize: fontSize.base,
-    fontWeight: '600',
-    color: colors.gray[800],
-    marginBottom: spacing[1],
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#1F2937',
   },
   restaurantCuisine: {
-    fontSize: fontSize.sm,
-    color: colors.gray[500],
+    fontSize: 14,
+    color: '#6B7280',
   },
   restaurantRating: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing[2],
-    paddingVertical: spacing[1],
-    borderRadius: borderRadius[12],
+    backgroundColor: '#FF6B35',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
   },
   ratingText: {
-    fontSize: fontSize.xs,
     color: '#fff',
-    fontWeight: '500',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
-  orContainer: {
+  centerContent: {
+    flex: 1,
     alignItems: 'center',
-    marginBottom: spacing[8],
+    justifyContent: 'center',
   },
   orText: {
-    color: '#fff',
-    fontSize: fontSize['2xl'],
-    fontWeight: '500',
-  },
-  qrContainer: {
-    alignItems: 'center',
-    marginBottom: spacing[12],
+    color: '#FF6B35',
+    fontSize: 24,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 20,
   },
   qrButton: {
     backgroundColor: '#fff',
-    borderRadius: borderRadius[48],
-    padding: spacing[8],
-    ...shadow['2xl'],
-  },
-  bottomTextContainer: {
-    alignItems: 'center',
-    flex: 1,
-    justifyContent: 'flex-end',
-    paddingBottom: spacing[8],
+    borderRadius: 40,
+    padding: 30,
+    alignSelf: 'center',
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
   },
   bottomText: {
-    color: '#fff',
-    fontSize: fontSize['3xl'],
+    marginTop: 30,
+    color: '#FF6B35',
+    fontSize: 22,
     fontWeight: 'bold',
     textAlign: 'center',
   },
+  noResultText: {
+    textAlign: 'center',
+    color: '#6B7280',
+    marginTop: 20,
+  }
 });

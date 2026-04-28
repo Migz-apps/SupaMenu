@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,63 +6,52 @@ import {
   ScrollView,
   Animated,
   Image,
+  StyleSheet,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, MapPin, Clock, CheckCircle, Phone, MessageCircle } from 'lucide-react-native';
+import { ArrowLeft, MapPin, CheckCircle, Phone, MessageCircle } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 
-export default function OrderTrackingScreen() {
-  const [currentStep, setCurrentStep] = useState(2);
-  const navigation = useNavigation();
-  
-  const fadeAnim = new Animated.Value(0);
-  const slideAnim = new Animated.Value(50);
+const { width } = Dimensions.get('window');
 
-  React.useEffect(() => {
+const colors = {
+  primary: '#FF6B35',
+  success: '#10B981',
+  blue: '#3B82F6',
+  white: '#FFFFFF',
+  background: '#F9FAFB',
+  gray: {
+    100: '#F3F4F6',
+    200: '#E5E7EB',
+    300: '#D1D5DB',
+    400: '#9CA3AF',
+    500: '#6B7280',
+    600: '#4B5563',
+    800: '#1F2937',
+  },
+};
+
+export default function OrderTrackingScreen() {
+  const [currentStep] = useState(2);
+  const navigation = useNavigation();
+
+  // Animation Values [cite: 16-17]
+  const fadeAnim = useState(new Animated.Value(0))[0];
+  const slideAnim = useState(new Animated.Value(50))[0];
+
+  useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 600,
-        useNativeDriver: true,
-      }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
     ]).start();
   }, []);
 
   const orderSteps = [
-    {
-      id: 1,
-      title: 'Order Confirmed',
-      time: '12:30 PM',
-      description: 'Your order has been received',
-      completed: true,
-    },
-    {
-      id: 2,
-      title: 'Preparing',
-      time: '12:35 PM',
-      description: 'Restaurant is preparing your food',
-      completed: true,
-      current: true,
-    },
-    {
-      id: 3,
-      title: 'On the way',
-      time: 'Estimated 12:50 PM',
-      description: 'Rider is picking up your order',
-      completed: false,
-    },
-    {
-      id: 4,
-      title: 'Delivered',
-      time: 'Estimated 1:00 PM',
-      description: 'Enjoy your meal!',
-      completed: false,
-    },
+    { id: 1, title: 'Order Confirmed', time: '12:30 PM', description: 'Your order has been received', completed: true },
+    { id: 2, title: 'Preparing', time: '12:35 PM', description: 'Restaurant is preparing your food', completed: true, current: true },
+    { id: 3, title: 'On the way', time: 'Estimated 12:50 PM', description: 'Rider is picking up your order', completed: false },
+    { id: 4, title: 'Delivered', time: 'Estimated 1:00 PM', description: 'Enjoy your meal!', completed: false },
   ];
 
   const orderInfo = {
@@ -87,225 +76,107 @@ export default function OrderTrackingScreen() {
   };
 
   const renderOrderStep = ({ step, index }) => {
-    const stepAnim = new Animated.Value(0);
-    
-    React.useEffect(() => {
-      Animated.timing(stepAnim, {
-        toValue: 1,
-        duration: 400,
-        delay: index * 200,
-        useNativeDriver: true,
-      }).start();
-    }, []);
-
     const isCompleted = step.completed;
     const isCurrent = step.current;
 
     return (
-      <Animated.View
-        style={{
-          opacity: stepAnim,
-          transform: [
-            {
-              translateY: stepAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [20, 0],
-              }),
-            },
-          ],
-        }}
-        className="flex-row mb-6"
-      >
-        <View className="items-center mr-4">
-          <View className={`w-10 h-10 rounded-full flex items-center justify-center ${
-            isCompleted 
-              ? 'bg-green-500' 
-              : isCurrent 
-                ? 'bg-primary' 
-                : 'bg-gray-300'
-          }`}>
-            {isCompleted ? (
-              <CheckCircle size={20} color="white" />
-            ) : (
-              <Text className="text-white font-semibold">
-                {step.id}
-              </Text>
-            )}
+      <View key={step.id} style={styles.stepRow}>
+        <View style={styles.stepLeftColumn}>
+          <View style={[
+            styles.stepCircle,
+            isCompleted ? styles.bgSuccess : isCurrent ? styles.bgPrimary : styles.bgGray
+          ]}>
+            {isCompleted ? <CheckCircle size={20} color="white" /> : <Text style={styles.stepNumber}>{step.id}</Text>}
           </View>
           {index < orderSteps.length - 1 && (
-            <View className={`w-0.5 h-16 mt-2 ${
-              isCompleted ? 'bg-green-500' : 'bg-gray-300'
-            }`} />
+            <View style={[styles.stepLine, isCompleted ? styles.bgSuccess : styles.bgGray]} />
           )}
         </View>
-        
-        <View className="flex-1">
-          <View className="flex-row items-center justify-between">
-            <Text className={`font-semibold ${
-              isCurrent ? 'text-primary' : isCompleted ? 'text-gray-800' : 'text-gray-500'
-            }`}>
+
+        <View style={styles.stepContent}>
+          <View style={styles.stepHeader}>
+            <Text style={[
+              styles.stepTitle,
+              isCurrent ? styles.textPrimary : isCompleted ? styles.textDark : styles.textGray
+            ]}>
               {step.title}
             </Text>
-            <Text className={`text-sm ${
-              isCurrent ? 'text-primary' : 'text-gray-500'
-            }`}>
+            <Text style={[styles.stepTime, isCurrent ? styles.textPrimary : styles.textGray]}>
               {step.time}
             </Text>
           </View>
-          <Text className="text-gray-600 text-sm mt-1">
-            {step.description}
-          </Text>
+          <Text style={styles.stepDescription}>{step.description}</Text>
         </View>
-      </Animated.View>
+      </View>
     );
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
-      <SafeAreaView className="flex-1">
-        {/* Header */}
-        <View className="bg-white px-6 pt-4 pb-4 shadow-sm">
-          <View className="flex-row items-center">
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <ArrowLeft size={24} color="#374151" />
-            </TouchableOpacity>
-            <Text className="text-gray-800 text-xl font-semibold ml-4">
-              Track Order
-            </Text>
-          </View>
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <ArrowLeft size={24} color={colors.gray[800]} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Track Order</Text>
         </View>
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          className="flex-1"
-        >
-          {/* Order Status */}
-          <Animated.View
-            style={{
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            }}
-            className="bg-white mx-6 mt-6 rounded-2xl p-4 shadow-sm"
-          >
-            <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-gray-800 text-lg font-semibold">
-                Order {orderInfo.id}
-              </Text>
-              <View className="bg-primary/10 px-3 py-1 rounded-full">
-                <Text className="text-primary text-sm font-medium">
-                  {orderSteps[currentStep - 1]?.title}
-                </Text>
+        <ScrollView showsVerticalScrollIndicator={false} style={styles.flex1}>
+          {/* Order Status Badge Section [cite: 170-190] */}
+          <Animated.View style={[styles.card, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+            <View style={styles.cardHeaderRow}>
+              <Text style={styles.orderIdText}>Order {orderInfo.id}</Text>
+              <View style={styles.statusBadge}>
+                <Text style={styles.statusBadgeText}>{orderSteps[currentStep - 1]?.title}</Text>
               </View>
             </View>
-            
-            <Text className="text-gray-600 text-sm">
-              Estimated delivery: {orderInfo.estimatedDelivery}
-            </Text>
+            <Text style={styles.estimateText}>Estimated delivery: {orderInfo.estimatedDelivery}</Text>
           </Animated.View>
 
-          {/* Progress Steps */}
-          <Animated.View
-            style={{
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            }}
-            className="bg-white mx-6 mt-4 rounded-2xl p-4 shadow-sm"
-          >
-            {orderSteps.map((step, index) => (
-              <View key={step.id}>
-                {renderOrderStep({ step, index })}
-              </View>
-            ))}
+          {/* Progress Timeline Section [cite: 191-204] */}
+          <Animated.View style={[styles.card, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+            {orderSteps.map((step, index) => renderOrderStep({ step, index }))}
           </Animated.View>
 
-          {/* Rider Info */}
+          {/* Rider Details Section [cite: 205-247] */}
           {currentStep >= 3 && (
-            <Animated.View
-              style={{
-                opacity: fadeAnim,
-                transform: [{ translateY: slideAnim }],
-              }}
-              className="bg-white mx-6 mt-4 rounded-2xl p-4 shadow-sm"
-            >
-              <Text className="text-gray-800 font-semibold mb-4">
-                Delivery Partner
-              </Text>
-              
-              <View className="flex-row items-center">
-                <Image
-                  source={{ uri: riderInfo.photo }}
-                  className="w-16 h-16 rounded-full mr-4"
-                  resizeMode="cover"
-                />
-                <View className="flex-1">
-                  <Text className="text-gray-800 font-semibold">
-                    {riderInfo.name}
-                  </Text>
-                  <Text className="text-gray-500 text-sm">
-                    {riderInfo.vehicle} • {riderInfo.plateNumber}
-                  </Text>
-                  <View className="flex-row mt-2">
-                    <TouchableOpacity
-                      onPress={() => console.log('Call rider')}
-                      className="bg-green-500 rounded-full p-2 mr-3"
-                    >
-                      <Phone size={16} color="white" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => console.log('Message rider')}
-                      className="bg-blue-500 rounded-full p-2"
-                    >
-                      <MessageCircle size={16} color="white" />
-                    </TouchableOpacity>
+            <Animated.View style={[styles.card, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+              <Text style={styles.sectionTitle}>Delivery Partner</Text>
+              <View style={styles.riderRow}>
+                <Image source={{ uri: riderInfo.photo }} style={styles.riderImage} />
+                <View style={styles.flex1}>
+                  <Text style={styles.riderName}>{riderInfo.name}</Text>
+                  <Text style={styles.riderVehicle}>{riderInfo.vehicle} • {riderInfo.plateNumber}</Text>
+                  <View style={styles.contactRow}>
+                    <TouchableOpacity style={styles.callButton}><Phone size={16} color="white" /></TouchableOpacity>
+                    <TouchableOpacity style={styles.messageButton}><MessageCircle size={16} color="white" /></TouchableOpacity>
                   </View>
                 </View>
               </View>
             </Animated.View>
           )}
 
-          {/* Order Summary */}
-          <Animated.View
-            style={{
-              opacity: fadeAnim,
-              transform: [{ translateY: slideAnim }],
-            }}
-            className="bg-white mx-6 mt-4 mb-6 rounded-2xl p-4 shadow-sm"
-          >
-            <Text className="text-gray-800 font-semibold mb-4">
-              Order Details
-            </Text>
-            
-            <View className="mb-4">
-              <Text className="text-gray-600 text-sm mb-2">
-                {orderInfo.restaurant}
-              </Text>
-              <View className="flex-row items-center mb-2">
-                <MapPin size={14} color="#6B7280" />
-                <Text className="text-gray-500 text-sm ml-2">
-                  {orderInfo.deliveryAddress}
-                </Text>
+          {/* Detailed Summary Section [cite: 248-291] */}
+          <Animated.View style={[styles.card, { opacity: fadeAnim, transform: [{ translateY: slideAnim }], marginBottom: 30 }]}>
+            <Text style={styles.sectionTitle}>Order Details</Text>
+            <View style={styles.restaurantSection}>
+              <Text style={styles.restaurantLabel}>{orderInfo.restaurant}</Text>
+              <View style={styles.addressRow}>
+                <MapPin size={14} color={colors.gray[500]} />
+                <Text style={styles.addressText}>{orderInfo.deliveryAddress}</Text>
               </View>
             </View>
-
-            <View className="border-t border-gray-200 pt-3">
-              <Text className="text-gray-800 font-medium mb-2">Items</Text>
+            <View style={styles.itemsDivider}>
+              <Text style={styles.itemsHeader}>Items</Text>
               {orderInfo.items.map((item, index) => (
-                <View key={index} className="flex-row justify-between mb-2">
-                  <Text className="text-gray-600">
-                    {item.quantity}x {item.name}
-                  </Text>
-                  <Text className="text-gray-800">
-                    Frw {(item.price * item.quantity).toLocaleString()}
-                  </Text>
+                <View key={index} style={styles.itemRow}>
+                  <Text style={styles.itemQuantityText}>{item.quantity}x {item.name}</Text>
+                  <Text style={styles.itemPriceText}>Frw {(item.price * item.quantity).toLocaleString()}</Text>
                 </View>
               ))}
-              <View className="border-t border-gray-200 mt-3 pt-3">
-                <View className="flex-row justify-between">
-                  <Text className="text-gray-800 font-semibold">Total</Text>
-                  <Text className="text-primary font-bold">
-                    Frw {orderInfo.total.toLocaleString()}
-                  </Text>
-                </View>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>Total</Text>
+                <Text style={styles.totalValue}>Frw {orderInfo.total.toLocaleString()}</Text>
               </View>
             </View>
           </Animated.View>
@@ -314,3 +185,53 @@ export default function OrderTrackingScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
+  safeArea: { flex: 1 },
+  flex1: { flex: 1 },
+  header: { backgroundColor: colors.white, paddingHorizontal: 24, paddingVertical: 16, flexDirection: 'row', alignItems: 'center', elevation: 2, shadowOpacity: 0.1 },
+  headerTitle: { fontSize: 20, fontWeight: '700', color: colors.gray[800], marginLeft: 16 },
+  card: { backgroundColor: colors.white, marginHorizontal: 24, marginTop: 16, borderRadius: 20, padding: 16, elevation: 1, shadowOpacity: 0.05 },
+  cardHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  orderIdText: { fontSize: 18, fontWeight: '700', color: colors.gray[800] },
+  statusBadge: { backgroundColor: 'rgba(255, 107, 53, 0.1)', px: 12, py: 4, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 4 },
+  statusBadgeText: { color: colors.primary, fontSize: 14, fontWeight: '600' },
+  estimateText: { color: colors.gray[600], fontSize: 14 },
+  stepRow: { flexDirection: 'row', marginBottom: 24 },
+  stepLeftColumn: { alignItems: 'center', marginRight: 16 },
+  stepCircle: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  stepNumber: { color: colors.white, fontWeight: '700' },
+  stepLine: { width: 2, height: 40, marginTop: 8 },
+  stepContent: { flex: 1 },
+  stepHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  stepTitle: { fontWeight: '700', fontSize: 16 },
+  stepTime: { fontSize: 13 },
+  stepDescription: { color: colors.gray[600], fontSize: 13, marginTop: 4 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: colors.gray[800], marginBottom: 12 },
+  riderRow: { flexDirection: 'row', alignItems: 'center' },
+  riderImage: { width: 64, height: 64, borderRadius: 32, marginRight: 16 },
+  riderName: { fontSize: 16, fontWeight: '700', color: colors.gray[800] },
+  riderVehicle: { fontSize: 14, color: colors.gray[500], marginTop: 2 },
+  contactRow: { flexDirection: 'row', marginTop: 12 },
+  callButton: { backgroundColor: colors.success, borderRadius: 20, padding: 8, marginRight: 12 },
+  messageButton: { backgroundColor: colors.blue, borderRadius: 20, padding: 8 },
+  restaurantSection: { marginBottom: 16 },
+  restaurantLabel: { color: colors.gray[600], fontSize: 14, marginBottom: 4 },
+  addressRow: { flexDirection: 'row', alignItems: 'center' },
+  addressText: { color: colors.gray[500], fontSize: 13, marginLeft: 8 },
+  itemsDivider: { borderTopWidth: 1, borderTopColor: colors.gray[200], pt: 12, paddingTop: 12 },
+  itemsHeader: { fontSize: 15, fontWeight: '600', color: colors.gray[800], marginBottom: 8 },
+  itemRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  itemQuantityText: { color: colors.gray[600] },
+  itemPriceText: { color: colors.gray[800] },
+  totalRow: { flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: colors.gray[200], marginTop: 12, paddingTop: 12 },
+  totalLabel: { fontSize: 16, fontWeight: '700', color: colors.gray[800] },
+  totalValue: { fontSize: 18, fontWeight: '800', color: colors.primary },
+  bgPrimary: { backgroundColor: colors.primary },
+  bgSuccess: { backgroundColor: colors.success },
+  bgGray: { backgroundColor: colors.gray[300] },
+  textPrimary: { color: colors.primary },
+  textGray: { color: colors.gray[500] },
+  textDark: { color: colors.gray[800] },
+});
